@@ -150,7 +150,7 @@ def process_args(args, defaults, description):
                         type=str2bool, default=defaults.BASELINE,
                         help='use baseline in actor gradient function. (default: %(default)s)')
     parameters = parser.parse_args(args)
-    print parameters
+    print(parameters)
     if parameters.experiment_prefix is None:
         name = os.path.splitext(os.path.basename(parameters.rom))[0]
         parameters.experiment_prefix = name
@@ -176,7 +176,7 @@ def launch(args, defaults, description):
         try:
           vars(defaults)[p.upper()] = temp_params[p]
         except:
-          print "warning: parameter", p, "from param file doesn't exist."
+          print("warning: parameter", p, "from param file doesn't exist.")
       #rec_screen = args[args.index("--nn-file")+1][:-len("last_model.pkl")]+"/frames"
 
     parameters = process_args(args, defaults, description)

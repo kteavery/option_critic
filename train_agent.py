@@ -74,9 +74,9 @@ class Trainer(object):
     if theano.config.device.startswith("gpu"):
       self.params.USE_DNN_TYPE=theano.sandbox.cuda.dnn.dnn_available()
     if self.params.USE_DNN_TYPE:
-      print "USING CUDNN"
+      print("USING CUDNN")
     else:
-      print "WARNING: NOT USING CUDNN. TRAINING WILL BE SLOWER."
+      print("WARNING: NOT USING CUDNN. TRAINING WILL BE SLOWER.")
     #self.params.USE_DNN_TYPE=False
 
   def __init__(self, model_params, ale_env, folder_name):
@@ -107,7 +107,7 @@ class Trainer(object):
 
     self.ale = ale_env
     self.legal_actions = self.ale.getMinimalActionSet()
-    print "NUM ACTIONS --->", len(self.legal_actions)
+    print("NUM ACTIONS --->", len(self.legal_actions))
     self.screen_dims = self.ale.getScreenDims()
     self.last_dist = 0
     self.mean_entropy = 0
@@ -151,7 +151,7 @@ class Trainer(object):
     elif self.params.resize_method == "scale":
       resized = cv2.resize(screen, (84, 84), interpolation=cv2.INTER_LINEAR)
     else:
-      print "wrong resize_method, only have crop and scale"
+      print("wrong resize_method, only have crop and scale")
       raise NotImplementedError
     return resized
 
@@ -160,7 +160,7 @@ class Trainer(object):
       self.best_reward = total_reward
       pkl.dump(self.model.save_params(), open(os.path.join(self.mydir, 'best_model.pkl'), "w"), protocol=pkl.HIGHEST_PROTOCOL)
     pkl.dump(self.model.save_params(), open(os.path.join(self.mydir, 'last_model.pkl'), "w"), protocol=pkl.HIGHEST_PROTOCOL)
-    print "Saved model"
+    print("Saved model")
 
   def run_training_episode(self):
     raise NotImplementedError
@@ -194,19 +194,19 @@ class Trainer(object):
     rem = self.params.steps_per_test
     while(self.frame_count - original_frame_count < self.params.steps_per_test):
       reward, fps = self.run_training_episode(self.max_frames_per_game, testing=True)
-      print ("TESTING: %d fps,\t" % fps),
-      print ("%d frames,\t" % self.ale.getEpisodeFrameNumber()),
+      print("TESTING: %d fps,\t" % fps)
+      print("%d frames,\t" % self.ale.getEpisodeFrameNumber()),
       self.ale.reset_game()
-      print "%d points,\t" % reward,
+      print("%d points,\t" % reward)
       rem = self.params.steps_per_test-(self.frame_count - original_frame_count)
-      print "rem:", rem,
-      print "ETA: %d:%02d" % (max(0, rem/60/fps*4), ((rem/fps*4)%60) if rem > 0 else 0),
-      print "term ratio %.2f" % (100*self.term_ratio)
+      print("rem:", rem)
+      print("ETA: %d:%02d" % (max(0, rem/60/fps*4), ((rem/fps*4)%60) if rem > 0 else 0))
+      print("term ratio %.2f" % (100*self.term_ratio))
       total_reward += reward
       num_games += 1
     self.frame_count = original_frame_count
     mean_reward = round(float(total_reward)/num_games, 2)
-    print "AVERAGE_SCORE:", mean_reward
+    print("AVERAGE_SCORE:", mean_reward)
     if type(self) is Q_Learning:
       mean_q = self.get_mean_q_val() if self.params.nn_file is None else 1
     else:
@@ -224,15 +224,15 @@ class Trainer(object):
         total_reward, fps = self.run_training_episode(self.max_frames_per_game)
         cumulative_reward += total_reward
         frames_rem = self.params.steps_per_epoch-(self.frame_count-start_frames)
-        print ("ep %d,\t") % (counter+1),
-        print ("%d fps,\t" % fps),
-        print ("%d frames,\t" % self.ale.getEpisodeFrameNumber()),
+        print("ep %d,\t") % (counter+1)
+        print("%d fps,\t" % fps)
+        print("%d frames,\t" % self.ale.getEpisodeFrameNumber())
         self.ale.reset_game()
-        print ('%d points,\t' % total_reward),
-        print ('%.1f avg,\t' % (float(cumulative_reward)/(counter+1))),
-        print "%d rem," % frames_rem, 'eps: %.4f' % self.get_epsilon(),
-        print "ETA: %d:%02d" % (max(0, frames_rem/60/fps*4), ((frames_rem/fps*4)%60) if frames_rem > 0 else 0),
-        print "term ratio %.2f" % (100*self.term_ratio)
+        print('%d points,\t' % total_reward)
+        print('%.1f avg,\t' % (float(cumulative_reward)/(counter+1)))
+        print("%d rem," % frames_rem, 'eps: %.4f' % self.get_epsilon())
+        print("ETA: %d:%02d" % (max(0, frames_rem/60/fps*4), ((frames_rem/fps*4)%60) if frames_rem > 0 else 0))
+        print("term ratio %.2f" % (100*self.term_ratio))
         counter += 1
 
       if self.params.nn_file is None:
@@ -274,19 +274,19 @@ class DQN_Trainer(Trainer):
       epsilon = self.get_epsilon() if not testing else self.params.optimal_eps
       if termination:
         if self.print_option_stats:
-          print "terminated -------", since_last_term,
+          print("terminated -------", since_last_term)
         termination_counter += 1
         since_last_term = 1
         current_option = np.random.randint(self.params.num_options) if np.random.rand() < epsilon else new_option
         #current_option = self.get_option(epsilon, s)
       else:
         if self.print_option_stats:
-          print "keep going",
+          print("keep going")
         since_last_term += 1
       current_action = self.model.get_action(s, [current_option])[0]
       #print current_option, current_action
       if self.print_option_stats:
-        print current_option,# current_action
+        print(current_option) # current_action
         #print [round(i, 2) for i in self.model.get_action_dist(s, [current_option])[0]]
         if True:
           self.action_counter[current_option][self.legal_actions[current_action]] += 1
@@ -296,15 +296,15 @@ class DQN_Trainer(Trainer):
             s3 = sum([aa[a] for a in aa])
             if s3 < 1:
               continue
-            print ii, aa, s3
+            print(ii, aa, s3)
             option_count.append(s3)
-            print [str(float(aa[a])/s3)[:5] for a in aa]
+            print([str(float(aa[a])/s3)[:5] for a in aa])
             data_table.append([float(aa[a])/s3 for a in aa])
-            print
+            print("\n")
 
           #ttt = self.model.get_action_dist(s3, [current_option])
           #print ttt, np.sum(-ttt*np.log(ttt))
-          print
+          print("\n")
 
       reward, raw_reward, new_frame = self.act(current_action, testing=testing)
 
@@ -342,7 +342,7 @@ class DQN_Trainer(Trainer):
     if not testing:
       self.term_probs.append(self.term_ratio)
     if self.print_option_stats:
-      print "---->", self.term_ratio
+      print("---->", self.term_ratio)
       #self.print_table(data_table, option_count)
     fps = round((self.frame_count - start_frame_count)/(time.time()-start_time), 2)
     fps = self.ale.getEpisodeFrameNumber()/(time.time()-start_time)
